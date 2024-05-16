@@ -11,13 +11,20 @@ const route = useRoute()
 const tabbar = useTabbar()
 
 const form = ref({
-  id: '',
   name: '',
+  categoryId: '',
   description: '',
-  category: '',
   imgUrl: '',
 })
 
+const categories = ref([
+  {
+    id: '',
+    name: '',
+  },
+])
+
+// 提交修改
 function onSubmit(): void {
   api.put('/document/edit', form.value, {
     headers: {
@@ -37,13 +44,19 @@ function onSubmit(): void {
   })
 }
 
+// 页面加载时
 onMounted(() => {
+  // 获取文档信息
   api.get('/document/get', {
     params: {
       id: route.params.id,
     },
   }).then((res) => {
     form.value = res.data
+  })
+  // 获取分类列表
+  api.get('/category/list').then((res) => {
+    categories.value = res.data
   })
 })
 </script>
@@ -59,9 +72,8 @@ onMounted(() => {
           <el-input v-model="form.description" type="textarea" />
         </el-form-item>
         <el-form-item label="文档分类：">
-          <el-select v-model="form.category" placeholder="请选择分类">
-            <el-option label="分类1" value="shanghai" />
-            <el-option label="分类2" value="beijing" />
+          <el-select v-model="form.categoryId" placeholder="请选择分类">
+            <el-option v-for="category in categories" :key="category.id" :label="category.name" :value="category.id" />
           </el-select>
         </el-form-item>
         <el-form-item>
